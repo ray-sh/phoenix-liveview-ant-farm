@@ -15,7 +15,7 @@ defmodule AntFarm.Ant.BehaviourTest do
       assert focus > 0
     end
 
-    test "when state is walking and focus is 0 it starts walking", %{state: state} do
+    test "when state is walking and focus is 0 it starts resting", %{state: state} do
       state = %{state | state: State.walking_state(), focus: 0}
 
       assert %State{state: :resting, focus: focus} = Behaviour.process(state)
