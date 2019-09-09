@@ -45,6 +45,11 @@ defmodule AntFarm.Ant.Supervisor do
     |> Enum.map(fn {:ok, state} -> state end)
   end
 
+  def ant_pids do
+    DynamicSupervisor.which_children(__MODULE__)
+    |> Enum.map(&elem(&1,1))
+  end
+
   @doc """
   Makes all ants go crazy!
   """

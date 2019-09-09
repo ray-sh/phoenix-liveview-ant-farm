@@ -8,6 +8,8 @@ defmodule AntFarm.Ant do
 
   alias __MODULE__.{State, Behaviour}
   @timeout 60
+  @pubsub_name :ant
+  @pubsub_topic "ant_updates"
 
   @doc false
   def start_link(opts) do
@@ -35,8 +37,13 @@ defmodule AntFarm.Ant do
   def handle_info(:perform_actions, state) do
     new_state = Behaviour.process(state)
     schedule()
-
+    Phoenix.PubSub.broadcast_from(AntFarm.PubSub, self(), @pubsub_topic, {:ant_update, new_state})
     {:noreply, new_state}
+  end
+
+  @impl true
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 
   @impl true
@@ -45,7 +52,9 @@ defmodule AntFarm.Ant do
   end
 
   def handle_cast(:panic, state) do
-    {:noreply, State.start_panicking(state)}
+    new_state = State.start_panicking(state)
+    Phoenix.PubSub.broadcast_from(AntFarm.PubSub, self(), @pubsub_topic, {:ant_update, new_state})
+    {:noreply, new_state}
   end
 
   defp name(id), do: String.to_atom("ant::" <> id)
