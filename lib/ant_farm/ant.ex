@@ -37,14 +37,14 @@ defmodule AntFarm.Ant do
   def handle_info(:perform_actions, state) do
     new_state = Behaviour.process(state)
     schedule()
-    Phoenix.PubSub.broadcast_from(AntFarm.PubSub, self(), @pubsub_topic, {:ant_update, new_state})
+    Phoenix.PubSub.broadcast(AntFarm.PubSub, @pubsub_topic, {:ant_update, new_state})
     {:noreply, new_state}
   end
 
-  @impl true
-  def handle_info(_, state) do
-    {:noreply, state}
-  end
+  # @impl true
+  # def handle_info(_, state) do
+  #   {:noreply, state}
+  # end
 
   @impl true
   def handle_cast(:panic, %State{state: :panicking} = state) do
@@ -53,7 +53,9 @@ defmodule AntFarm.Ant do
 
   def handle_cast(:panic, state) do
     new_state = State.start_panicking(state)
-    Phoenix.PubSub.broadcast_from(AntFarm.PubSub, self(), @pubsub_topic, {:ant_update, new_state})
+    #Phoenix.PubSub.broadcast会向订阅topic的所有process发送消息，消息不会发给自己
+    #这种消息中转的好处是发送者和接收者的解耦，他们不必知道彼此的process，每个process只需要和全局的pubsub打交道就可以
+    Phoenix.PubSub.broadcast(AntFarm.PubSub, @pubsub_topic, {:ant_update, new_state})
     {:noreply, new_state}
   end
 

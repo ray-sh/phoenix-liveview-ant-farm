@@ -14,6 +14,7 @@ defmodule AntFarmWeb.AntFarmLiveView do
   def mount(_session, socket) do
     #if connected?(socket), do: schedule()
     if connected?(socket) do
+      #订阅这只需要知道全局的pubsub，和topic
       Phoenix.PubSub.subscribe(AntFarm.PubSub, "ant_updates")
     end
     ants = Colony.ants()
