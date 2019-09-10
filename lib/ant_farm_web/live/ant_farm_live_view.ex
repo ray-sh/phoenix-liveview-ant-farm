@@ -14,7 +14,7 @@ defmodule AntFarmWeb.AntFarmLiveView do
   def mount(_session, socket) do
     #if connected?(socket), do: schedule()
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(AntFarm.PubSub, self(), "ant_updates")
+      Phoenix.PubSub.subscribe(AntFarm.PubSub, "ant_updates")
     end
     ants = Colony.ants()
     {:ok, assign(socket, panic: false, ants: ants)}
@@ -28,7 +28,7 @@ defmodule AntFarmWeb.AntFarmLiveView do
   end
 
   def handle_info({:ant_update, new_state}, socket) do
-    {:noreply, assign(socket, ants: new_state )}
+    {:noreply, assign(socket, ants: [new_state] )}
   end
 
   def handle_info(:tick, socket) do
